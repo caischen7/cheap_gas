@@ -1,0 +1,231 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Layout: control column on the left, map and plan on the right; stacks on phones.
+   Palette: asphalt neutrals with a green bias, highway-sign green, Interstate-shield blue for the route,
+   and pump-display amber for prices. Values are RGB triplets so Tailwind can apply opacity. */
+:root {
+  --ground: 239 242 239;
+  --panel: 255 255 255;
+  --sunk: 230 235 231;
+  --line: 211 219 214;
+  --ink: 21 29 25;
+  --muted: 88 101 94;
+  --sign: 0 104 64;
+  --sign-ink: 255 255 255;
+  --amber: 176 108 0;
+  --good: 20 122 62;
+  --bad: 190 46 38;
+  --route: 30 84 168;
+  --map-land: 248 250 247;
+  --map-water: 214 226 232;
+  --map-border: 178 190 183;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    --ground: 16 20 18;
+    --panel: 25 31 28;
+    --sunk: 33 40 36;
+    --line: 52 61 56;
+    --ink: 229 235 231;
+    --muted: 148 161 154;
+    --sign: 40 158 104;
+    --sign-ink: 6 22 14;
+    --amber: 244 178 56;
+    --good: 82 196 128;
+    --bad: 244 108 96;
+    --route: 112 162 240;
+    --map-land: 36 43 39;
+    --map-water: 20 27 31;
+    --map-border: 74 86 79;
+    color-scheme: dark;
+  }
+}
+:root[data-theme='dark'] {
+  --ground: 16 20 18;
+  --panel: 25 31 28;
+  --sunk: 33 40 36;
+  --line: 52 61 56;
+  --ink: 229 235 231;
+  --muted: 148 161 154;
+  --sign: 40 158 104;
+  --sign-ink: 6 22 14;
+  --amber: 244 178 56;
+  --good: 82 196 128;
+  --bad: 244 108 96;
+  --route: 112 162 240;
+  --map-land: 36 43 39;
+  --map-water: 20 27 31;
+  --map-border: 74 86 79;
+  color-scheme: dark;
+}
+
+html,
+body {
+  background: rgb(var(--ground));
+  color: rgb(var(--ink));
+}
+body {
+  font-family: 'Public Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+h1, h2, h3 {
+  text-wrap: balance;
+}
+.tabular {
+  font-variant-numeric: tabular-nums;
+}
+.gutter {
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+:focus-visible {
+  outline: 2px solid rgb(var(--route));
+  outline-offset: 2px;
+}
+
+/* Range slider */
+input[type='range'] {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 6px;
+  border-radius: 999px;
+  background: linear-gradient(to right, rgb(var(--sign)) var(--fill, 50%), rgb(var(--line)) var(--fill, 50%));
+}
+input[type='range']::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: rgb(var(--panel));
+  border: 2px solid rgb(var(--sign));
+  cursor: pointer;
+}
+input[type='range']::-moz-range-thumb {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: rgb(var(--panel));
+  border: 2px solid rgb(var(--sign));
+  cursor: pointer;
+}
+
+/* Leaflet theming */
+.leaflet-container {
+  background: rgb(var(--map-water));
+  font-family: inherit;
+}
+.leaflet-control-attribution {
+  background: rgb(var(--panel) / 0.85) !important;
+  color: rgb(var(--muted)) !important;
+}
+.leaflet-control-attribution a {
+  color: rgb(var(--route)) !important;
+}
+.leaflet-bar a {
+  background: rgb(var(--panel)) !important;
+  color: rgb(var(--ink)) !important;
+  border-color: rgb(var(--line)) !important;
+}
+.leaflet-tooltip {
+  background: rgb(var(--panel));
+  color: rgb(var(--ink));
+  border: 1px solid rgb(var(--line));
+  box-shadow: 0 2px 8px rgb(0 0 0 / 0.15);
+}
+.leaflet-tooltip-top:before {
+  border-top-color: rgb(var(--line));
+}
+
+.stop-pin {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  transform: translate(-50%, -100%);
+  white-space: nowrap;
+  filter: drop-shadow(0 2px 3px rgb(0 0 0 / 0.3));
+}
+.stop-pin .num {
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 6px;
+  background: rgb(var(--sign));
+  color: rgb(var(--sign-ink));
+  border: 2px solid rgb(var(--panel));
+  font: 700 14px/1 'Barlow Condensed', 'Arial Narrow', sans-serif;
+}
+.stop-pin .price {
+  padding: 2px 6px;
+  border-radius: 4px;
+  /* Pump-display look in both themes: dark face, amber digits. */
+  background: rgb(20 24 22);
+  color: rgb(244 178 56);
+  border: 1px solid rgb(var(--panel) / 0.6);
+  font: 700 15px/1.2 'Barlow Condensed', 'Arial Narrow', sans-serif;
+  font-variant-numeric: tabular-nums;
+}
+.stop-pin.selected .num {
+  outline: 3px solid rgb(var(--amber));
+}
+.end-pin {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 3px solid rgb(var(--panel));
+  box-shadow: 0 2px 6px rgb(0 0 0 / 0.35);
+  font: 700 13px/1 'Barlow Condensed', 'Arial Narrow', sans-serif;
+  color: #fff;
+  transform: translate(-50%, -50%);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+
+/* Map layers are styled through classes so they follow the theme tokens. */
+.map-state {
+  fill: rgb(var(--map-land));
+  fill-opacity: 1;
+  stroke: rgb(var(--map-border));
+}
+.map-tiles {
+  opacity: 0.85;
+}
+.route-casing {
+  stroke: rgb(var(--panel));
+  stroke-opacity: 0.9;
+  fill: none;
+}
+.route-line {
+  stroke: rgb(var(--route));
+  fill: none;
+}
+.station-dot {
+  stroke: rgb(var(--panel));
+  fill-opacity: 0.9;
+}
+.station-dot.cheap {
+  fill: rgb(var(--good));
+}
+.station-dot.mid {
+  fill: rgb(var(--muted));
+}
+.station-dot.pricey {
+  fill: rgb(var(--bad));
+}
+.end-pin.start {
+  background: rgb(22 128 61);
+}
+.end-pin.end {
+  background: rgb(190 46 38);
+}
